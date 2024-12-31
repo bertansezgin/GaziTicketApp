@@ -1,0 +1,579 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Öğrenci Dashboard</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      color: #2d3748;
+      display: flex;
+    }
+
+    /* Side Menu Styles */
+    .side-menu {
+      width: 250px;
+      background: rgba(255, 255, 255, 0.95);
+      height: 100vh;
+      position: fixed;
+      padding: 20px;
+      box-shadow: 4px 0 10px rgba(0, 0, 0, 0.1);
+    }
+
+    .menu-header {
+      text-align: center;
+      margin-bottom: 30px;
+      padding-bottom: 20px;
+      border-bottom: 2px solid rgba(102, 126, 234, 0.2);
+    }
+
+    .menu-header h2 {
+      color: #2d3748;
+      font-size: 20px;
+      margin-bottom: 10px;
+    }
+
+    .menu-items {
+      list-style: none;
+    }
+
+    .menu-items li {
+      margin-bottom: 10px;
+    }
+
+    .menu-items button {
+      width: 100%;
+      text-align: left;
+      padding: 12px 15px;
+      background: transparent;
+      border: none;
+      border-radius: 8px;
+      color: #2d3748;
+      font-size: 16px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .menu-items button:hover {
+      background: rgba(102, 126, 234, 0.1);
+      transform: translateX(5px);
+    }
+
+    .menu-items button.active {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+    }
+
+    /* Main Content Styles */
+    .main-content {
+      flex: 1;
+      margin-left: 250px;
+      padding: 20px;
+    }
+
+    .header {
+      background: rgba(255, 255, 255, 0.95);
+      padding: 20px;
+      border-radius: 20px;
+      text-align: center;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      margin-bottom: 20px;
+    }
+
+    .header h1 {
+      color: #2d3748;
+      margin-bottom: 10px;
+      font-size: 28px;
+      font-weight: 600;
+    }
+
+    .header p {
+      color: #4a5568;
+      font-size: 16px;
+    }
+
+    .card {
+      background: rgba(255, 255, 255, 0.95);
+      border-radius: 20px;
+      padding: 25px;
+      margin-bottom: 30px;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+      transition: transform 0.3s ease;
+    }
+
+    .card:hover {
+      transform: translateY(-5px);
+    }
+
+    .card h2 {
+      color: #2d3748;
+      margin-bottom: 20px;
+      font-size: 24px;
+      font-weight: 600;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 15px;
+      background: white;
+      border-radius: 10px;
+      overflow: hidden;
+    }
+
+    th, td {
+      padding: 15px;
+      text-align: left;
+      border-bottom: 1px solid #e2e8f0;
+    }
+
+    th {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      font-weight: 600;
+    }
+
+    tr:hover {
+      background-color: #f7fafc;
+    }
+
+    .action-button {
+      padding: 8px 16px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .action-button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+    }
+
+    .action-button:disabled {
+      background: #cbd5e0;
+      cursor: not-allowed;
+      transform: none;
+      box-shadow: none;
+    }
+
+    /* Content sections */
+    .content-section {
+      display: none;
+    }
+
+    .content-section.active {
+      display: block;
+    }
+
+    /* Form Styles */
+    .form-group {
+      margin-bottom: 20px;
+    }
+
+    .form-group label {
+      display: block;
+      margin-bottom: 8px;
+      color: #2d3748;
+      font-weight: 500;
+    }
+
+    .form-group input {
+      width: 100%;
+      padding: 12px;
+      border: 2px solid #e2e8f0;
+      border-radius: 8px;
+      font-size: 16px;
+      transition: all 0.3s ease;
+    }
+
+    .form-group input:focus {
+      border-color: #667eea;
+      outline: none;
+      box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    }
+
+    #profilForm {
+      max-width: 600px;
+      margin: 0 auto;
+    }
+
+    #profilForm .action-button {
+      width: 100%;
+      margin-top: 20px;
+      padding: 12px;
+    }
+
+    .success-message {
+      background-color: #c6f6d5;
+      color: #2f855a;
+      padding: 15px;
+      border-radius: 8px;
+      margin-top: 20px;
+      text-align: center;
+    }
+
+    .error-message {
+      background-color: #fed7d7;
+      color: #c53030;
+      padding: 15px;
+      border-radius: 8px;
+      margin-top: 20px;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+<!-- Side Menu -->
+<div class="side-menu">
+  <div class="menu-header">
+    <h2>Öğrenci Menü</h2>
+    <p id="ogrenciInfo">Hoş Geldiniz!</p>
+  </div>
+  <ul class="menu-items">
+    <li><button onclick="showSection('etkinlikler')" class="active">Etkinlikler</button></li>
+    <li><button onclick="showSection('biletlerim')">Biletlerim</button></li>
+    <li><button onclick="showSection('profil')">Profil Bilgileri</button></li>
+    <li><button onclick="cikisYap()">Çıkış Yap</button></li>
+  </ul>
+</div>
+
+<!-- Main Content -->
+<div class="main-content">
+  <!-- Etkinlikler Section -->
+  <div id="etkinlikler" class="content-section active">
+    <div class="header">
+      <h1>Mevcut Etkinlikler</h1>
+      <p>Tüm etkinlikleri görüntüleyebilir ve bilet satın alabilirsiniz.</p>
+    </div>
+    <div class="card">
+      <table>
+        <thead>
+        <tr>
+          <th>ID</th>
+          <th>Adı</th>
+          <th>Yer</th>
+          <th>Tarih</th>
+          <th>Saat</th>
+          <th>Kontenjan</th>
+          <th>Fiyat</th>
+          <th>Aksiyon</th>
+        </tr>
+        </thead>
+        <tbody id="etkinlikListesi">
+        <!-- Dinamik olarak etkinlikler buraya eklenecek -->
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Biletlerim Section -->
+  <div id="biletlerim" class="content-section">
+    <div class="header">
+      <h1>Biletlerim</h1>
+      <p>Satın aldığınız tüm biletleri burada görebilirsiniz.</p>
+    </div>
+    <div class="card">
+      <table>
+        <thead>
+        <tr>
+          <th>Bilet ID</th>
+          <th>Etkinlik Adı</th>
+          <th>Yer</th>
+          <th>Tarih</th>
+          <th>Saat</th>
+          <th>Fiyat</th>
+          <th>Durum</th>
+          <th>İşlem</th>
+        </tr>
+        </thead>
+        <tbody id="biletListesi">
+        <!-- Dinamik olarak biletler buraya eklenecek -->
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Profil Section -->
+  <div id="profil" class="content-section">
+    <div class="header">
+      <h1>Profil Bilgileri</h1>
+      <p>Kişisel bilgilerinizi görüntüleyebilir ve güncelleyebilirsiniz.</p>
+    </div>
+    <div class="card">
+      <form id="profilForm">
+        <div class="form-group">
+          <label for="ad">Ad</label>
+          <input type="text" id="ad" name="ad" required>
+        </div>
+        <div class="form-group">
+          <label for="soyad">Soyad</label>
+          <input type="text" id="soyad" name="soyad" required>
+        </div>
+        <div class="form-group">
+          <label for="email">Email</label>
+          <input type="email" id="email" name="email" required>
+        </div>
+        <div class="form-group">
+          <label for="telefon">Telefon</label>
+          <input type="tel" id="telefon" name="telefon" required>
+        </div>
+        <div class="form-group">
+          <label for="yeniSifre">Yeni Şifre (Opsiyonel)</label>
+          <input type="password" id="yeniSifre" name="yeniSifre">
+        </div>
+        <button type="submit" class="action-button">Bilgileri Güncelle</button>
+      </form>
+    </div>
+  </div>
+</div>
+
+<script>
+  // Show/Hide Sections
+  function showSection(sectionId) {
+    // Hide all sections
+    document.querySelectorAll('.content-section').forEach(section => {
+      section.classList.remove('active');
+    });
+
+    // Show selected section
+    document.getElementById(sectionId).classList.add('active');
+
+    // Update active button
+    document.querySelectorAll('.menu-items button').forEach(button => {
+      button.classList.remove('active');
+    });
+    event.target.classList.add('active');
+  }
+
+  // Çıkış Yap
+  function cikisYap() {
+    localStorage.removeItem('ogrenciId');
+    window.location.href = '/index.html';
+  }
+
+  // Etkinlikleri Listeleme
+  async function etkinlikListele() {
+    try {
+      const response = await fetch('/etkinlikler/listele');
+      const etkinlikler = await response.json();
+
+      const tbody = document.getElementById('etkinlikListesi');
+      tbody.innerHTML = '';
+      etkinlikler.forEach(etkinlik => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td>${etkinlik.etkinlikId}</td>
+          <td>${etkinlik.etkinlikAdi}</td>
+          <td>${etkinlik.yer}</td>
+          <td>${etkinlik.tarih}</td>
+          <td>${etkinlik.saat}</td>
+          <td>${etkinlik.kontenjan}</td>
+          <td>${etkinlik.fiyat}</td>
+          <td>
+            <button class="action-button"
+                    onclick="biletAl(${etkinlik.etkinlikId}, ${etkinlik.fiyat})"
+                    ${etkinlik.kontenjan === 0 ? 'disabled' : ''}>
+              Bilet Al
+            </button>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+    } catch (error) {
+      console.error('Etkinlikler yüklenirken hata:', error);
+    }
+  }
+
+  // Biletleri Listeleme
+  async function biletListele() {
+    try {
+      const ogrenciId = localStorage.getItem('ogrenciId');
+      if (!ogrenciId) {
+        alert('Oturum süreniz dolmuş. Lütfen tekrar giriş yapın.');
+        window.location.href = '/index.html';
+        return;
+      }
+
+      const response = await fetch(`/biletler/listele/${ogrenciId}`);
+      const biletler = await response.json();
+
+      const tbody = document.getElementById('biletListesi');
+      tbody.innerHTML = '';
+      biletler.forEach(bilet => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td>${bilet.biletId}</td>
+          <td>${bilet.etkinlik.etkinlikAdi}</td>
+          <td>${bilet.etkinlik.yer}</td>
+          <td>${bilet.etkinlik.tarih}</td>
+          <td>${bilet.etkinlik.saat}</td>
+          <td>${bilet.fiyat}</td>
+          <td>${bilet.durum}</td>
+          <td>
+            ${bilet.durum === 'Geçerli' ?
+                `<button class="action-button" onclick="biletIptal(${bilet.biletId})">İptal Et</button>` :
+                ''}
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+    } catch (error) {
+      console.error('Biletler yüklenirken hata:', error);
+    }
+  }
+
+  // Bilet Satın Alma
+  async function biletAl(etkinlikId, fiyat) {
+    try {
+      const ogrenciId = localStorage.getItem('ogrenciId');
+      if (!ogrenciId) {
+        alert('Oturum süreniz dolmuş. Lütfen tekrar giriş yapın.');
+        window.location.href = '/index.html';
+        return;
+      }
+
+      const response = await fetch('/biletler/ekle', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ogrenciId, etkinlikId, fiyat })
+      });
+
+      if (response.ok) {
+        alert('Bilet başarıyla satın alındı!');
+        etkinlikListele();
+        biletListele();
+      } else {
+        alert('Bilet satın alınamadı. Lütfen tekrar deneyin!');
+      }
+    } catch (error) {
+      console.error('Bilet alınırken hata:', error);
+      alert('Bir hata oluştu. Lütfen tekrar deneyin.');
+    }
+  }
+
+  // Bilet İptal
+  async function biletIptal(biletId) {
+    try {
+      const response = await fetch(`/biletler/iptal/${biletId}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' }
+      });
+
+      if (response.ok) {
+        alert('Bilet başarıyla iptal edildi!');
+        biletListele();
+        etkinlikListele();
+      } else {
+        const errorData = await response.text();
+        alert('Bilet iptal edilemedi: ' + errorData);
+      }
+    } catch (error) {
+      console.error('Bilet iptal edilirken hata:', error);
+      alert('Bir hata oluştu. Lütfen tekrar deneyin.');
+    }
+  }
+
+  async function profilBilgileriniGetir() {
+    try {
+      const ogrenciId = localStorage.getItem('ogrenciId');
+      if (!ogrenciId) {
+        window.location.href = '/index.html';
+        return;
+      }
+
+      const response = await fetch(`/ogrenciler/${ogrenciId}`);
+      const ogrenci = await response.json();
+
+      // Öğrenci bilgisini menüde göster
+      document.getElementById('ogrenciInfo').textContent = ogrenci.adSoyad;
+
+      // Form alanlarını doldur
+      // Eğer form alanlarında ad ve soyad ayrı ayrı gerekiyorsa
+      // adSoyad'ı boşluğa göre bölebiliriz
+      const [ad, ...soyadParcalari] = ogrenci.adSoyad.split(' ');
+      const soyad = soyadParcalari.join(' ');
+
+      document.getElementById('ad').value = ad || '';
+      document.getElementById('soyad').value = soyad || '';
+      document.getElementById('email').value = ogrenci.email || '';
+      document.getElementById('telefon').value = ogrenci.telefon || '';
+
+    } catch (error) {
+      console.error('Profil bilgileri yüklenirken hata:', error);
+    }
+  }
+
+  // Profil Güncelleme
+  document.getElementById('profilForm').addEventListener('submit', async function(event) {
+    event.preventDefault();
+
+    const ogrenciId = localStorage.getItem('ogrenciId');
+    const formData = {
+      ogrenciId: ogrenciId,
+      ad: document.getElementById('ad').value,
+      soyad: document.getElementById('soyad').value,
+      email: document.getElementById('email').value,
+      telefon: document.getElementById('telefon').value,
+      sifre: document.getElementById('yeniSifre').value || undefined
+    };
+
+    try {
+      const response = await fetch('/ogrenciler/guncelle', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(formData)
+      });
+
+      if (response.ok) {
+        // Başarı mesajı göster
+        const successDiv = document.createElement('div');
+        successDiv.className = 'success-message';
+        successDiv.textContent = 'Profil bilgileriniz başarıyla güncellendi!';
+        document.getElementById('profilForm').appendChild(successDiv);
+
+        // Profil bilgilerini yeniden yükle
+        profilBilgileriniGetir();
+
+        // Şifre alanını temizle
+        document.getElementById('yeniSifre').value = '';
+
+        // 3 saniye sonra başarı mesajını kaldır
+        setTimeout(() => {
+          successDiv.remove();
+        }, 3000);
+      } else {
+        throw new Error('Güncelleme başarısız');
+      }
+    } catch (error) {
+      // Hata mesajı göster
+      const errorDiv = document.createElement('div');
+      errorDiv.className = 'error-message';
+      errorDiv.textContent = 'Bilgiler güncellenirken bir hata oluştu!';
+      document.getElementById('profilForm').appendChild(errorDiv);
+
+      // 3 saniye sonra hata mesajını kaldır
+      setTimeout(() => {
+        errorDiv.remove();
+      }, 3000);
+    }
+  });
+
+  // Sayfa Yüklendiğinde
+  document.addEventListener('DOMContentLoaded', () => {
+    etkinlikListele();
+    biletListele();
+    profilBilgileriniGetir();
+  });
+</script>
+</body>
+</html>

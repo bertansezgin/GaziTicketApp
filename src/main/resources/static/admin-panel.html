@@ -1,0 +1,665 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            min-height: 100vh;
+            display: flex;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+        }
+
+        /* Side Menu Styles */
+        .side-menu {
+            width: 250px;
+            background: rgba(255, 255, 255, 0.95);
+            height: calc(100vh - 40px);
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+            margin-right: 20px;
+            position: fixed;
+        }
+
+        .menu-header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid #e2e8f0;
+        }
+
+        .menu-header h2 {
+            color: #2d3748;
+            font-size: 28px;
+            font-weight: 600;
+        }
+
+        .menu-items {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .menu-items button {
+            width: 100%;
+            padding: 15px;
+            background: transparent;
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
+            color: #2d3748;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: left;
+        }
+
+        .menu-items button:hover {
+            border-color: #667eea;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .menu-items button.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+        }
+
+        .logout-button {
+            margin-top: auto;
+            background: linear-gradient(135deg, #fc8181 0%, #f56565 100%) !important;
+            color: white !important;
+            border: none !important;
+        }
+
+        /* Main Content Styles */
+        .main-content {
+            flex: 1;
+            margin-left: 270px;
+            max-width: calc(100% - 290px);
+        }
+
+        .content-section {
+            display: none;
+            background: rgba(255, 255, 255, 0.95);
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+            transition: transform 0.3s ease;
+            margin-bottom: 20px;
+        }
+
+        .content-section.active {
+            display: block;
+        }
+
+        .card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .card h2 {
+            color: #2d3748;
+            margin-bottom: 20px;
+            font-size: 24px;
+            font-weight: 600;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            color: #2d3748;
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+            outline: none;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        th {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px;
+            text-align: left;
+            font-weight: 600;
+        }
+
+        td {
+            padding: 15px;
+            border-bottom: 2px solid #e2e8f0;
+        }
+
+        tr:hover {
+            background-color: #f7fafc;
+        }
+
+        .action-button {
+            padding: 12px 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .action-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .table-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .edit-button, .delete-button {
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .edit-button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .delete-button {
+            background: linear-gradient(135deg, #fc8181 0%, #f56565 100%);
+            color: white;
+        }
+
+        .doluluk-orani {
+            font-weight: bold;
+            color: #4a5568;
+        }
+        
+        .doluluk-yuksek {
+            color: #2f855a;
+        }
+        
+        .doluluk-orta {
+            color: #d69e2e;
+        }
+        
+        .doluluk-dusuk {
+            color: #c53030;
+        }
+    </style>
+</head>
+<body>
+<!-- Side Menu -->
+<div class="side-menu">
+    <div class="menu-header">
+        <h2>Admin Panel</h2>
+    </div>
+    <div class="menu-items">
+        <button onclick="showSection('etkinlikEkle')" class="active">Etkinlik Ekle</button>
+        <button onclick="showSection('etkinlikGuncelle')">Etkinlik Güncelle</button>
+        <button onclick="showSection('etkinlikListesi')">Etkinlik Listesi</button>
+        <button onclick="showSection('etkinlikKatilimcilar')">Etkinlik Katılımcıları</button>
+        <button onclick="cikisYap()" class="logout-button">Çıkış Yap</button>
+    </div>
+</div>
+
+<!-- Main Content -->
+<div class="main-content">
+    <!-- Etkinlik Ekleme Section -->
+    <div id="etkinlikEkle" class="content-section active">
+        <div class="card">
+            <h2>Yeni Etkinlik Ekle</h2>
+            <form id="etkinlikEkleForm" onsubmit="etkinlikEkle(event)">
+                <div class="form-group">
+                    <label for="etkinlikAdi">Etkinlik Adı</label>
+                    <input type="text" id="etkinlikAdi" name="etkinlikAdi" required>
+                </div>
+                <div class="form-group">
+                    <label for="yer">Yer</label>
+                    <input type="text" id="yer" name="yer" required>
+                </div>
+                <div class="form-group">
+                    <label for="tarih">Tarih</label>
+                    <input type="date" id="tarih" name="tarih" required>
+                </div>
+                <div class="form-group">
+                    <label for="saat">Saat</label>
+                    <input type="time" id="saat" name="saat" required>
+                </div>
+                <div class="form-group">
+                    <label for="kontenjan">Kontenjan</label>
+                    <input type="number" id="kontenjan" name="kontenjan" required>
+                </div>
+                <div class="form-group">
+                    <label for="fiyat">Fiyat</label>
+                    <input type="number" id="fiyat" name="fiyat" required>
+                </div>
+                <button type="submit" class="action-button">Etkinlik Oluştur</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Etkinlik Güncelleme Section -->
+    <div id="etkinlikGuncelle" class="content-section">
+        <div class="card">
+            <h2>Etkinlik Güncelle</h2>
+            <div class="form-group">
+                <label for="guncellenecekEtkinlik">Güncellenecek Etkinliği Seçin</label>
+                <select id="guncellenecekEtkinlik" onchange="etkinlikBilgileriniGetir(this.value)">
+                    <option value="">Etkinlik Seçin</option>
+                </select>
+            </div>
+            <form id="etkinlikGuncelleForm" onsubmit="etkinlikGuncelle(event)">
+                <div class="form-group">
+                    <label for="guncelleEtkinlikAdi">Etkinlik Adı</label>
+                    <input type="text" id="guncelleEtkinlikAdi" name="etkinlikAdi" required>
+                </div>
+                <div class="form-group">
+                    <label for="guncelleYer">Yer</label>
+                    <input type="text" id="guncelleYer" name="yer" required>
+                </div>
+                <div class="form-group">
+                    <label for="guncelleTarih">Tarih</label>
+                    <input type="date" id="guncelleTarih" name="tarih" required>
+                </div>
+                <div class="form-group">
+                    <label for="guncelleSaat">Saat</label>
+                    <input type="time" id="guncelleSaat" name="saat" required>
+                </div>
+                <div class="form-group">
+                    <label for="guncelleKontenjan">Kontenjan</label>
+                    <input type="number" id="guncelleKontenjan" name="kontenjan" required>
+                </div>
+                <div class="form-group">
+                    <label for="guncelleFiyat">Fiyat</label>
+                    <input type="number" id="guncelleFiyat" name="fiyat" required>
+                </div>
+                <button type="submit" class="action-button">Etkinliği Güncelle</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Etkinlik Listesi Section -->
+    <div id="etkinlikListesi" class="content-section">
+        <div class="card">
+            <h2>Etkinlik Listesi</h2>
+            <table>
+                <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Etkinlik Adı</th>
+                    <th>Tarih</th>
+                    <th>Saat</th>
+                    <th>Yer</th>
+                    <th>Kontenjan</th>
+                    <th>Fiyat</th>
+                    <th>Doluluk Oranı</th>
+                    <th>İşlemler</th>
+                </tr>
+                </thead>
+                <tbody id="etkinlikListesiTablo">
+                <!-- Dinamik olarak doldurulacak -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Etkinlik Katılımcıları Section -->
+    <div id="etkinlikKatilimcilar" class="content-section">
+        <div class="card">
+            <h2>Etkinlik Katılımcıları</h2>
+            <div class="form-group">
+                <label for="etkinlikSecim">Etkinlik Seçin</label>
+                <select id="etkinlikSecim" onchange="katilimcilariListele(this.value)">
+                    <option value="">Etkinlik Seçin</option>
+                </select>
+            </div>
+            <table>
+                <thead>
+                <tr>
+                    <th>Öğrenci No</th>
+                    <th>Ad Soyad</th>
+                    <th>Email</th>
+                    <th>Bilet ID</th>
+                    <th>Bilet Alım Tarihi</th>
+                </tr>
+                </thead>
+                <tbody id="katilimciListesi">
+                <!-- Dinamik olarak doldurulacak -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Show/Hide Sections
+    function showSection(sectionId) {
+        document.querySelectorAll('.content-section').forEach(section => {
+            section.classList.remove('active');
+        });
+        document.getElementById(sectionId).classList.add('active');
+
+        document.querySelectorAll('.menu-items button').forEach(button => {
+            button.classList.remove('active');
+        });
+        event.target.classList.add('active');
+    }
+
+    // Çıkış Yap
+    function cikisYap() {
+        localStorage.removeItem('adminId');
+        window.location.href = '/admin-giris.html';
+    }
+    async function etkinlikDolulukOrani(etkinlikId) {
+    try {
+        const response = await fetch(`/etkinlikler/${etkinlikId}/doluluk`);
+        if (response.ok) {
+            const data = await response.json();
+            return data.dolulukOrani;
+        } else {
+            throw new Error('Doluluk oranı alınamadı');
+        }
+    } catch (error) {
+        console.error('Hata:', error);
+        return null;
+    }
+}
+
+// Kullanım örneği:
+document.addEventListener('DOMContentLoaded', async () => {
+    const etkinlikId = 1; // örnek etkinlik ID'si
+    const dolulukOrani = await etkinlikDolulukOrani(etkinlikId);
+    if (dolulukOrani !== null) {
+        document.getElementById('dolulukOrani').textContent = 
+            `Doluluk Oranı: %${dolulukOrani.toFixed(2)}`;
+    }
+});
+
+
+    // Etkinlik Ekleme
+    async function etkinlikEkle(event) {
+        event.preventDefault();
+        const form = event.target;
+        const formData = new FormData(form);
+
+        const tarih = formData.get('tarih');
+        const date = new Date(tarih);
+
+        const data = {
+            etkinlikAdi: formData.get('etkinlikAdi'),
+            yer: formData.get('yer'),
+            saat: formData.get('saat'),
+            kontenjan: formData.get('kontenjan'),
+            fiyat: formData.get('fiyat'),
+            gun: date.getDate(),
+            ay: date.getMonth() + 1,
+            yil: date.getFullYear()
+        };
+
+        try {
+            const response = await fetch('/etkinlikler/ekle', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
+            });
+
+            if (response.ok) {
+                alert('Etkinlik başarıyla oluşturuldu!');
+                form.reset();
+                etkinlikListele();
+                etkinlikleriYukle();
+            } else {
+                throw new Error('Etkinlik oluşturulamadı');
+            }
+        } catch (error) {
+            alert('Bir hata oluştu!');
+            console.error(error);
+        }
+    }
+
+    // Seçilen etkinliğin bilgilerini getirme
+    async function etkinlikBilgileriniGetir(etkinlikId) {
+        if (!etkinlikId) return;
+
+        try {
+            const response = await fetch(`/etkinlikler/${etkinlikId}`);
+            const etkinlik = await response.json();
+
+            document.getElementById('guncelleEtkinlikAdi').value = etkinlik.etkinlikAdi;
+            document.getElementById('guncelleYer').value = etkinlik.yer;
+            document.getElementById('guncelleTarih').value = formatDate(etkinlik.tarih);
+            document.getElementById('guncelleSaat').value = etkinlik.saat;
+            document.getElementById('guncelleKontenjan').value = etkinlik.kontenjan;
+            document.getElementById('guncelleFiyat').value = etkinlik.fiyat;
+        } catch (error) {
+            console.error('Etkinlik bilgileri alınırken hata:', error);
+        }
+    }
+
+    // Etkinlik Güncelleme
+    async function etkinlikGuncelle(event) {
+        event.preventDefault();
+        const etkinlikId = document.getElementById('guncellenecekEtkinlik').value;
+        if (!etkinlikId) {
+            alert('Lütfen bir etkinlik seçin');
+            return;
+        }
+
+        const form = event.target;
+        const formData = new FormData(form);
+
+        const tarih = formData.get('tarih');
+        const date = new Date(tarih);
+
+        const data = {
+            etkinlikAdi: formData.get('etkinlikAdi'),
+            yer: formData.get('yer'),
+            saat: formData.get('saat'),
+            kontenjan: formData.get('kontenjan'),
+            fiyat: formData.get('fiyat'),
+            gun: date.getDate(),
+            ay: date.getMonth() + 1,
+            yil: date.getFullYear()
+        };
+
+        try {
+            const response = await fetch(`/etkinlikler/guncelle/${etkinlikId}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
+            });
+
+            if (response.ok) {
+                alert('Etkinlik başarıyla güncellendi!');
+                etkinlikListele();
+                etkinlikleriYukle();
+            } else {
+                throw new Error('Etkinlik güncellenemedi');
+            }
+        } catch (error) {
+            alert('Bir hata oluştu!');
+            console.error(error);
+        }
+    }
+
+    // Etkinlikleri Listeleme
+    async function etkinlikListele() {
+    try {
+        const response = await fetch('/etkinlikler/listele');
+        const etkinlikler = await response.json();
+        const tbody = document.getElementById('etkinlikListesiTablo');
+        tbody.innerHTML = '';
+
+        for (const etkinlik of etkinlikler) {
+            // Her etkinlik için doluluk oranını al
+            const dolulukResponse = await fetch(`/etkinlikler/${etkinlik.etkinlikId}/doluluk`);
+            const dolulukData = await dolulukResponse.json();
+
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td>${etkinlik.etkinlikId}</td>
+                <td>${etkinlik.etkinlikAdi}</td>
+                <td>${etkinlik.tarih}</td>
+                <td>${etkinlik.saat}</td>
+                <td>${etkinlik.yer}</td>
+                <td>${etkinlik.kontenjan}</td>
+                <td>${etkinlik.fiyat} ₺</td>
+                <td class="doluluk-orani ${getDolulukClass(dolulukData.dolulukOrani)}">
+                    %${dolulukData.dolulukOrani.toFixed(2)}
+                </td>
+                <td>
+                    <button onclick="etkinlikSil(${etkinlik.etkinlikId})" class="delete-button">Sil</button>
+                </td>
+            `;
+            tbody.appendChild(tr);
+        }
+    } catch (error) {
+        console.error('Etkinlikler yüklenirken hata:', error);
+    }
+}
+
+// Doluluk oranına göre renk sınıfı belirleme
+function getDolulukClass(oran) {
+    if (oran >= 80) return 'doluluk-yuksek';
+    if (oran >= 50) return 'doluluk-orta';
+    return 'doluluk-dusuk';
+}
+
+    async function katilimcilariListele(etkinlikId) {
+        if (!etkinlikId) {
+            document.getElementById('katilimciListesi').innerHTML = '';
+            return;
+        }
+
+        try {
+            const response = await fetch(`/biletler/etkinlik-katilimcilar/${etkinlikId}`);
+            const katilimcilar = await response.json();
+
+            const tbody = document.getElementById('katilimciListesi');
+            tbody.innerHTML = '';
+
+            if (katilimcilar.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="6">Bu etkinlikte katılımcı yok.</td></tr>';
+                return;
+            }
+
+            katilimcilar.forEach(katilimci => {
+                const biletTarihi = katilimci.biletTarihi
+                    ? new Date(katilimci.biletTarihi).toLocaleString()
+                    : 'Tarih Yok';
+
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                <td>${katilimci.ogrenciNo || 'Bilinmiyor'}</td>
+                <td>${katilimci.adSoyad || 'Bilinmiyor'}</td>
+                <td>${katilimci.email || 'Bilinmiyor'}</td>
+                <td>${katilimci.biletId || 'Bilinmiyor'}</td>
+                <td>${biletTarihi}</td>
+            `;
+                tbody.appendChild(tr);
+            });
+        } catch (error) {
+            console.error('Katılımcılar yüklenirken hata:', error);
+        }
+    }
+
+
+
+    // Etkinlik Silme
+    async function etkinlikSil(id) {
+        if (confirm('Bu etkinliği silmek istediğinizden emin misiniz?')) {
+            try {
+                const response = await fetch(`/etkinlikler/sil/${id}`, { method: 'DELETE' });
+                if (response.ok) {
+                    alert('Etkinlik başarıyla silindi!');
+                    etkinlikListele();
+                } else {
+                    throw new Error('Silme işlemi başarısız');
+                }
+            } catch (error) {
+                alert('Etkinlik silinirken bir hata oluştu!');
+                console.error(error);
+            }
+        }
+    }
+
+    // Tarih Formatı
+    function formatDate(dateString) {
+        const date = new Date(dateString);
+        return date.toISOString().split('T')[0];
+    }
+
+    // Etkinlikleri select elementlerine yükleme
+    async function etkinlikleriYukle() {
+        try {
+            const response = await fetch('/etkinlikler/listele');
+            const etkinlikler = await response.json();
+            
+            // Güncelleme ve katılımcılar için olan select elementleri
+            const guncelleSelect = document.getElementById('guncellenecekEtkinlik');
+            const katilimcilarSelect = document.getElementById('etkinlikSecim');
+            
+            // Select elementlerini temizle
+            guncelleSelect.innerHTML = '<option value="">Etkinlik Seçin</option>';
+            katilimcilarSelect.innerHTML = '<option value="">Etkinlik Seçin</option>';
+            
+            // Etkinlikleri select elementlerine ekle
+            etkinlikler.forEach(etkinlik => {
+                const option = `<option value="${etkinlik.etkinlikId}">${etkinlik.etkinlikAdi} - ${etkinlik.tarih}</option>`;
+                guncelleSelect.insertAdjacentHTML('beforeend', option);
+                katilimcilarSelect.insertAdjacentHTML('beforeend', option);
+            });
+        } catch (error) {
+            console.error('Etkinlikler yüklenirken hata:', error);
+        }
+    }
+
+    // Sayfa Yüklendiğinde
+    document.addEventListener('DOMContentLoaded', () => {
+        etkinlikListele();
+        etkinlikleriYukle();
+    });
+</script>
+</body>
+</html>

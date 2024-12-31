@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Girişi</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      padding: 20px;
+    }
+
+    .form-container {
+      background: rgba(255, 255, 255, 0.95);
+      padding: 40px;
+      border-radius: 20px;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+      width: 100%;
+      max-width: 400px;
+      transition: transform 0.3s ease;
+    }
+
+    .form-container:hover {
+      transform: translateY(-5px);
+    }
+
+    .form-container h1 {
+      color: #2d3748;
+      text-align: center;
+      margin-bottom: 30px;
+      font-size: 28px;
+      font-weight: 600;
+    }
+
+    .input-group {
+      margin-bottom: 20px;
+      position: relative;
+    }
+
+    .input-group input {
+      width: 100%;
+      padding: 15px;
+      border: 2px solid #e2e8f0;
+      border-radius: 10px;
+      font-size: 16px;
+      transition: all 0.3s ease;
+      outline: none;
+    }
+
+    .input-group input:focus {
+      border-color: #667eea;
+      box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    }
+
+    button {
+      width: 100%;
+      padding: 15px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border: none;
+      border-radius: 10px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+    }
+
+    #mesaj {
+      text-align: center;
+      margin-top: 15px;
+      padding: 10px;
+      border-radius: 8px;
+      font-size: 14px;
+      transition: all 0.3s ease;
+    }
+
+    .success {
+      background-color: #c6f6d5;
+      color: #2f855a;
+    }
+
+    .error {
+      background-color: #fed7d7;
+      color: #c53030;
+    }
+  </style>
+</head>
+
+<body>
+<div class="form-container">
+  <h1>Admin Girişi</h1>
+  <form id="adminGirisForm">
+    <div class="input-group">
+      <input type="text" id="kullaniciAdi" placeholder="Kullanıcı Adı" required>
+    </div>
+    <div class="input-group">
+      <input type="password" id="sifre" placeholder="Şifre" required>
+    </div>
+    <button type="submit">Giriş Yap</button>
+  </form>
+  <div id="mesaj"></div>
+</div>
+
+<script>
+  document.getElementById('adminGirisForm').addEventListener('submit', async function(event) {
+    event.preventDefault();
+
+    const kullaniciAdi = document.getElementById('kullaniciAdi').value;
+    const sifre = document.getElementById('sifre').value;
+    const mesaj = document.getElementById('mesaj');
+
+    try {
+      const response = await fetch('/kullanicilar/giris', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ kullaniciAdi, sifre })
+      });
+
+      if (response.ok) {
+        mesaj.className = 'success';
+        mesaj.textContent = 'Giriş başarılı! Admin paneline yönlendiriliyorsunuz...';
+        setTimeout(() => {
+          window.location.href = '/admin-panel.html';
+        }, 2000);
+      } else {
+        const errorText = await response.text();
+        mesaj.className = 'error';
+        mesaj.textContent = errorText || 'Giriş başarısız. Lütfen bilgilerinizi kontrol edin.';
+      }
+    } catch (error) {
+      mesaj.className = 'error';
+      mesaj.textContent = 'Bir hata oluştu. Lütfen tekrar deneyin.';
+    }
+  });
+</script>
+</body>
+</html>
